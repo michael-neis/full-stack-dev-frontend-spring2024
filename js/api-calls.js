@@ -30,7 +30,7 @@ async function getMonths() {
       throw new Error('API URL is not available');
     }
     var xhr = new XMLHttpRequest();
-    xhr.open('GET', `${apiUrl}/months`, true); // Use the API URL from the Netlify function
+    xhr.open('GET', `${apiUrl}/months`, true); // Use the API URL from the Netlify functions
     xhr.onload = function() {
       if (xhr.status === 200) {
         var months = JSON.parse(xhr.responseText);
