@@ -1,3 +1,4 @@
+// accessing netlify variable
 export async function handler(event, context) {
     const myURL = process.env.myURL;
     return {
