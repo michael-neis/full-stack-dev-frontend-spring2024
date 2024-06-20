@@ -11,18 +11,50 @@ monthsToggleButton.addEventListener('click', evt => {
   evt.preventDefault();
   getMonths();
 });
-function getMonths() {
-  var xhr = new XMLHttpRequest();
-  xhr.open('GET', `${API_URL}/months`, true); // replace with your API endpoint
-  xhr.onload = function() {
-    if (xhr.status === 200) {
-      var months = JSON.parse(xhr.responseText);
-      var list = '';
-      for (var i = 0; i < months.length; i++) {
-        list += '<li>' + months[i] + '</li>';
-      }
-      document.getElementById('months-list').innerHTML = '<ul>' + list + '</ul>';
+async function getMyUrl() {
+  try {
+    const response = await fetch('/.netlify/functions/getMyUrl');
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
     }
-  };
-  xhr.send();
+    const data = await response.json();
+    return data.myURL;
+  } catch (error) {
+    console.error('Error fetching the API URL:', error);
+  }
+}
+async function getMonths() {
+  try {
+    const apiUrl = await getMyUrl();
+    if (!apiUrl) {
+      throw new Error('API URL is not available');
+    }
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', `${apiUrl}/months`, true); // Use the API URL from the Netlify function
+    xhr.onload = function() {
+      if (xhr.status === 200) {
+        var months = JSON.parse(xhr.responseText);
+        var list = '';
+        for (var key in months) {
+          if (months.hasOwnProperty(key)) {
+            list += '<li>' + months[key] + '</li>';
+          }
+        }
+        var monthsListElement = document.getElementById('months-list');
+        if (monthsListElement) {
+          monthsListElement.innerHTML = '<ul>' + list + '</ul>';
+        } else {
+          console.error('Element with ID "months-list" not found');
+        }
+      } else {
+        console.error('Error fetching months:', xhr.status, xhr.statusText);
+      }
+    };
+    xhr.onerror = function() {
+      console.error('Request error');
+    };
+    xhr.send();
+  } catch (error) {
+    console.error('Error fetching months:', error);
+  }
 }
